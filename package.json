@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "start": "bun --hot run api.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "node-base64-img": "^2.0.0",
+    "node-get-favicons": "^1.2.0",
+    "sbd": "^1.0.19",
+    "scrap-favicon": "^1.0.4",
+    "wikijs": "^6.4.1"
+  }
+}
