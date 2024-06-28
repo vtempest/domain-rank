@@ -18,5 +18,6 @@ Domain Rank shows how trustworthy and influential a domain is based on links poi
 
 * Bookmark Lists and Web App Launcher
 * Autocomplete for search engine or URL bar, with typo-tolerance
-* Custom DNS or DNS precaching 
-* Data science research
+* LLM Chatbot for Web App Recomendations
+* Fake News Source Legitimacy By Domain 
+* School Internet Filter Blocking By Domain 
