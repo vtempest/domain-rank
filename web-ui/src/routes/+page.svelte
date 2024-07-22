@@ -11,6 +11,7 @@
 	import { Button } from '../components/ui/button';
 	import { onMount } from 'svelte';
 	import axios from 'axios';
+	import domainData from "../../../data/domains-1k-wiki-info.js";
 
 	let domains = writable([]);
 	let loading = true;
@@ -35,13 +36,13 @@
 
 	onMount(async () => {
 		// try {
-		const response = await axios.get('/api');
+		// const response = await axios.get('/api');
 
 		// if (!response.data) {
 		// 	loading = false;
 		// 	return
 		// }
-		domains = writable(response.data);
+		domains = writable(domainData);
 
 		console.log(domains);
 		loading = false;
