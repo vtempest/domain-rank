@@ -4,9 +4,9 @@ const readline = require("readline");
 /**
  * Get 100M domains from CommonCrawl
  * https://data.commoncrawl.org/projects/hyperlinkgraph/cc-main-2024-feb-apr-may/index.html
-  
-wget https://data.commoncrawl.org/projects/hyperlinkgraph/cc-main-2024-feb-apr-may/domain/cc-main-2024-feb-apr-may-domain-ranks.txt.gz
-gunzip cc-main-2024-feb-apr-may-domain-ranks.txt.gz
+ * 
+ * wget https://data.commoncrawl.org/projects/hyperlinkgraph/cc-main-2024-feb-apr-may/domain/cc-main-2024-feb-apr-may-domain-ranks.txt.gz
+ * gunzip cc-main-2024-feb-apr-may-domain-ranks.txt.gz
 
  */
 function getDomains() {
@@ -32,7 +32,7 @@ function getDomains() {
     }
   }, 1000);
 
-  writeStream.write("export default "\n");
+  writeStream.write("export default \"\n");
 
   rl.on("line", (line) => {
     var dom = line.split("\t")[4];

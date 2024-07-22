@@ -19,20 +19,19 @@ export default async function convertDomainToFavicon(domain, options = {}) {
     var response = await axios({
       url: faviconURL,
       timeout,
-    });
+    }).catch((e) => { });
 
-    if (response.status != 200) {
-      console.log("Status:", response.status, domain);
+    if (!response || response?.status != 200) {
       faviconURL = `https://www.${domain}/favicon.ico`;
 
       response = await axios({
         url: faviconURL,
         timeout,
-      });
+      }).catch((e) => { });
     }
 
-    if (response.status != 200) 
-      faviconURL = await getFavicons.byUrl("https://www." + domain, {timeout})
+    if (!response || response?.status != 200) 
+      faviconURL = (await getFavicons.byUrl("https://www." + domain, {timeout}))[0]?.href
 
     return faviconURL;
     

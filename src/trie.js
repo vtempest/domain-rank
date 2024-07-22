@@ -2,14 +2,15 @@
 /**
  * A trie structure to efficiently store and search for strings.
  * 
-    var trie = new CharTrie();
+    import Trie from './trie.js';
+    var trie = new Trie();
     trie.extend("aa");
     trie.commonPrefixSearch(a)
 
  */
-export class CharTrie {
+export class Trie {
     constructor() {
-        this.root = CharTrieNode.default();
+        this.root = TrieNode.default();
     }
 
     /**
@@ -31,7 +32,7 @@ export class CharTrie {
         for (let ch of text) {
             let child = node.children.get(ch);
             if (child === undefined) {
-                child = CharTrieNode.default();
+                child = TrieNode.default();
                 node.children.set(ch, child);
             }
             node = child;
@@ -61,11 +62,11 @@ export class CharTrie {
 /**
  * Represents a node in a character trie.
  */
-class CharTrieNode {
+class TrieNode {
     /**
-     * Create a new CharTrieNode.
+     * Create a new TrieNode.
      * @param {boolean} isLeaf Whether the node is a leaf node or not.
-     * @param {Map<string, CharTrieNode>} children A map containing the node's children, where the key is a character and the value is a `CharTrieNode`.
+     * @param {Map<string, TrieNode>} children A map containing the node's children, where the key is a character and the value is a `TrieNode`.
      */
     constructor(isLeaf, children) {
         this.isLeaf = isLeaf;
@@ -73,10 +74,10 @@ class CharTrieNode {
     }
 
     /**
-     * Returns a new `CharTrieNode` instance with default values.
-     * @returns {CharTrieNode} A new `CharTrieNode` instance with `isLeaf` set to `false` and an empty `children` map.
+     * Returns a new `TrieNode` instance with default values.
+     * @returns {TrieNode} A new `TrieNode` instance with `isLeaf` set to `false` and an empty `children` map.
      */
     static default() {
-        return new CharTrieNode(false, new Map());
+        return new TrieNode(false, new Map());
     }
 }

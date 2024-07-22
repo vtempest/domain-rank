@@ -2,20 +2,22 @@ import sbd from "sbd";
 import stringDistance from "wink-distance";
 
 /**
- * Search Wikipedia for a query, return the first result's title,
- * summary, and image. Returns {error} if no results found.
+ * Search Wikipedia for a query, return result's title, summary, and image. 
  *
  * @param {string} query search phrase 
- * @param {object} options {
-    plainText = false, // Return plain text instead of HTML
-    summarySentenceLimit = 3, // Limit summary to this many sentences
-    limitSearchResults = 1, // Limit number of search results
-    images = true, // Include image in results
-    imageSize = 200, // Image size in pixels
-    searchInTitleOnly = false, // Search in title only
-    rerankByTitleSimilarity = true, // Rerank results by query to 
-      title Jaro-Winkler distance softmax
- * @returns {object} {results:[{title, summary, image}..]}
+ * @param {object} options Options object with the following properties and defaults:
+ * @param {object.options} plainText = false, // Return plain text instead of HTML
+ * @param {object.options} summarySentenceLimit = 3, // Limit summary to this many sentences
+ * @param {object.options} limitSearchResults = 1, // Limit number of search results
+ * @param {object.options} images = true, // Include image in results
+ * @param {object.options} imageSize = 200, // Image size in pixels
+ * @param {object.options} searchInTitleOnly = false, // Search in title only
+ * @param {object.options} rerankByTitleSimilarity = true, // Rerank results by query to 
+ *  title Jaro-Winkler distance softmax
+ * @param {object.options} filterDisambiguation = true, // Filter disambiguation pages
+ * @example await searchWikipedia("JavaScript", { plainText: true })
+ * @returns {object} {results: [ {title, summary, image}, ...]}
+ * @returns {object} Returns {error} if no results found. {error: "No results"}
  */
 export default async function searchWikipedia(query, options = {}) {
   // Set default options
@@ -25,8 +27,8 @@ export default async function searchWikipedia(query, options = {}) {
     limitSearchResults = 2,
     images = true,
     imageSize = 200,
-    searchInTitleOnly = false,
-    rerankByTitleSimilarity = true,
+    searchInTitleOnly = true,
+    rerankByTitleSimilarity = false,
     filterDisambiguation = true,
   } = options;
 
@@ -68,7 +70,7 @@ export default async function searchWikipedia(query, options = {}) {
           ?.replace(/( class=\"mw-empty-elt\")/g, "")
           .replace(/[\n\r]/g, " ")
           .replace(/<p>[ ]*<\/p>/g, "")
-
+          .replace(/<p>/g, ""); //remove all paragraphs since we get a few sentences
 
     // Use sentence boundary detection to limit summary to a few sentences
     pageData.summary =
@@ -77,7 +79,7 @@ export default async function searchWikipedia(query, options = {}) {
         : extract;
 
     // Check if page is a disambiguation page
-    if (extract.includes(" may refer to: </p>")) 
+    if (extract.includes(" may refer to: </p>"))
       pageData.isDisambiguation = true;
 
     // Get image if requested in size specified
@@ -90,31 +92,47 @@ export default async function searchWikipedia(query, options = {}) {
     resultsObjects.push(pageData);
   }
 
+  //remove disambiguation pages like "___ may refer to"
   if (filterDisambiguation)
-    resultsObjects = resultsObjects.filter(
-      (i) => !i.isDisambiguation
-    );
+    resultsObjects = resultsObjects.filter((i) => !i.isDisambiguation);
 
   //compare string distance of page titles to query, and sort by proximity
-  if (rerankByTitleSimilarity) {
-    resultsObjects = resultsObjects
-      .map((element) => {
-        element.similarity = stringDistance.string.jaroWinkler(
-          query.toUpperCase(),
-          element.title.toUpperCase()
-        );
-        return element;
-      })
-      .sort((a, b) => a.similarity - b.similarity);
-
-    var similarityList = softmax(
-      resultsObjects.map((i) => 10 - 10 * i.similarity)
-    ).map((i) => Math.floor(i * 100));
-
-    resultsObjects.map((i, index) => (i.similarity = similarityList[index]));
-  }
+  if (rerankByTitleSimilarity)
+    resultsObjects = rerankByTitleSimilarityToQuery(resultsObjects, query);
 
   return { results: resultsObjects };
+}
+
+/**
+ * Compare string distance of page titles to query, and sort by proximity
+ * @param {array} resultsObjects
+ * @param {string} query
+ */
+export function rerankByTitleSimilarityToQuery(resultsObjects, query) {
+  //if domain then remove .com
+  query = query.split(".")[0];
+
+  resultsObjects
+    .map((element) => {
+      element.similarity = stringDistance.string.jaroWinkler(
+        query.toUpperCase(),
+        element.title.toUpperCase()
+      );
+      return element;
+    })
+
+  var similarityList = softmax(
+    resultsObjects.map((i) => 10 - 10 * i.similarity)
+  ).map((i) => Math.floor(i * 100));
+
+  resultsObjects.forEach(
+    (i, index) => (i.similarity = similarityList[index])
+  );
+
+  resultsObjects = resultsObjects 
+  .sort((a, b) => b.similarity - a.similarity);
+
+  return resultsObjects;
 }
 
 /**
@@ -133,7 +151,7 @@ export default async function searchWikipedia(query, options = {}) {
  * @returns {array} The softmax array.
  */
 
-export function softmax (array){
+export function softmax(array) {
   return array.map(
     (val, index) =>
       Math.exp(array[index]) /
