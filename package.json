@@ -1,23 +1,53 @@
 {
   "name": "domain-rank",
-  "description": "Domain Rank Top Million CommonCrawl domains, source names, duplicates, and favicons",
+  "version": "0.1.44",
+  "description": "Domain Rank Top Million domains, source names, duplicates, and favicons",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenSourceAGI/qwksearch-research-agent.git",
+    "directory": "packages/domain-rank"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./data/*": "./data/*"
+  },
+  "files": [
+    "dist",
+    "data",
+    "readme.md"
+  ],
   "scripts": {
-    "download": "bun src/import-domains-1m.js",
-    "info": "bun src/domain-info.js",
-    "favicons": "bun src/favicons.js",
-    "test": "bun test"
+    "download": "bun src/scripts/import-domains-1m.js",
+    "info": "bun src/scripts/parse-domain-info.ts",
+    "merge": "bun src/scripts/merge-domain-lists.ts",
+    "favicons": "bun src/scripts/favicons.js",
+    "test": "bun test",
+    "build": "vite build && tsc --project tsconfig.build.json",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build"
   },
   "type": "module",
   "dependencies": {
-    "adm-zip": "^0.5.16",
     "fuse.js": "^7.1.0",
+    "grab-url": "^1.6.19",
     "tldts": "^7.0.11",
     "unzipper": "^0.12.3",
-    "vitest": "^1.6.0",
-    "zlib": "^1.0.5"
+    "vitest": "^4.0.18"
   },
   "devDependencies": {
+    "@types/node": "^25.9.3",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
-  }
+    "express": "^5.1.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^8.1.3"
+  },
+  "license": "rights.institute/PROSPER"
 }
